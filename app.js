@@ -2,7 +2,6 @@
 const CONFIG = {
   cloudName: 'rgtwnpin',
   uploadPreset: 'tamaravibes_iphone',
-  uploadFolder: 'TamaraVibes',
   galleryFolder: 'all',
   // Optional Cloudflare Worker URL. Needed to securely list existing assets.
   mediaEndpoint: 'https://cloudinary.tamtam.workers.dev'
@@ -186,7 +185,6 @@ function openUpload() {
     multiple: true,
     resourceType: 'auto',
     sources: ['local', 'camera'],
-    folder: CONFIG.uploadFolder,
     clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp', 'gif', 'mp4', 'mov', 'webm'],
     maxFileSize: 100000000,
     showAdvancedOptions: false,

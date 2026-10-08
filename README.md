@@ -7,7 +7,7 @@ A mobile-first PWA for uploading and browsing media in the Cloudinary `TamaraVib
 Open `app.js` and replace only these placeholder values with values from your existing Cloudinary account:
 
 - `cloudName`: `rgtwnpin`.
-- `uploadPreset`: `tamaravibes_iphone` (it must be an **unsigned** upload preset). In Cloudinary settings, allow image and video uploads and set its folder to `TamaraVibes` if the account uses dynamic folders. The widget also requests the `TamaraVibes` folder.
+- `uploadPreset`: `tamaravibes_iphone` (it must be an **unsigned** upload preset). New uploads are sent to the Cloudinary root (home) folder. In Cloudinary settings, make sure this preset does not assign a fixed folder; clear any `TamaraVibes` folder value from the preset. Allow image and video uploads.
 - `mediaEndpoint`: `https://cloudinary.tamtam.workers.dev`.
 
 Never put the Cloudinary API Secret in `app.js`, HTML, GitHub, or any browser setting. If you need to create a fresh unsigned preset, restrict its allowed formats and size in Cloudinary settings. The sample app accepts common image and video formats, up to 100 MB.
@@ -23,7 +23,7 @@ GitHub Pages is static, so it cannot securely call Cloudinary's Admin API by its
    - `CLOUDINARY_API_SECRET` — your Cloudinary API Secret; store this as an encrypted Worker secret.
    - `APP_DELETE_PASSWORD` — choose a separate password and store it as an encrypted Worker secret. The app asks for it each time you delete an asset; it is never saved in the site or browser storage.
    - `ALLOWED_ORIGIN` — exactly `https://YOUR_GITHUB_USERNAME.github.io` (origin only, with no repository path).
-   - `DEFAULT_FOLDER` — `TamaraVibes`.
+   - `DEFAULT_FOLDER` — `TamaraVibes` (used by the Worker as its default listing scope; the gallery currently requests all folders).
 3. Deploy the Worker. Copy its `workers.dev` URL into `CONFIG.mediaEndpoint` in `app.js`.
 4. Cloudinary Admin API credentials can read and delete account assets. Keep Worker secrets private, and limit the endpoint to your Pages origin. The gallery lists all image and video assets in this Cloudinary environment.
 
