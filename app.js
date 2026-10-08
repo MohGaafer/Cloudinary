@@ -72,11 +72,11 @@ function render() {
     previewButton.append(wrapper, meta);
     previewButton.addEventListener('click', () => openPreview(asset));
     const actions = document.createElement('div'); actions.className = 'media-actions';
-    const deleteButton = document.createElement('button');
-    deleteButton.type = 'button'; deleteButton.className = 'delete-button'; deleteButton.textContent = 'Delete';
-    deleteButton.setAttribute('aria-label', `Delete ${asset.display_name || asset.public_id}`);
-    deleteButton.addEventListener('click', () => deleteAsset(asset, deleteButton));
-    actions.append(deleteButton);
+    const copyButton = document.createElement('button');
+    copyButton.type = 'button'; copyButton.className = 'copy-button'; copyButton.textContent = 'Copy secure URL';
+    copyButton.setAttribute('aria-label', `Copy secure URL for ${asset.display_name || asset.public_id}`);
+    copyButton.addEventListener('click', () => copySecureUrl(asset, copyButton));
+    actions.append(copyButton);
     card.append(previewButton, actions);
     gallery.append(card);
   });
@@ -100,11 +100,23 @@ async function deleteAsset(asset, button) {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || `Delete failed (${response.status}).`);
     assets = assets.filter(item => item.asset_id !== asset.asset_id);
+    previewDialog.close();
     render();
     setStatus('Media deleted from Cloudinary.');
   } catch (error) {
     button.disabled = false; button.textContent = 'Delete';
     setStatus(error.message || 'Could not delete this media. Please try again.', true);
+  }
+}
+
+async function copySecureUrl(asset, button) {
+  try {
+    await navigator.clipboard.writeText(secureUrl(asset));
+    button.textContent = 'Copied!';
+    setTimeout(() => { button.textContent = 'Copy secure URL'; }, 1500);
+  } catch {
+    button.textContent = 'Copy unavailable';
+    setTimeout(() => { button.textContent = 'Copy secure URL'; }, 1500);
   }
 }
 
@@ -196,6 +208,9 @@ function openPreview(asset) {
   if (asset.resource_type === 'video') media.playsInline = true;
   previewContent.append(media);
   document.querySelector('#openUrl').href = url;
+  const deleteButton = document.querySelector('#deletePreviewButton');
+  deleteButton.disabled = !asset.asset_id;
+  deleteButton.textContent = 'Delete';
   previewDialog.showModal();
 }
 
@@ -204,10 +219,8 @@ document.querySelector('#refreshButton').addEventListener('click', () => { loadM
 document.querySelector('#loadMoreButton').addEventListener('click', () => loadMedia(true));
 document.querySelector('#closePreview').addEventListener('click', () => previewDialog.close());
 previewDialog.addEventListener('click', event => { if (event.target === previewDialog) previewDialog.close(); });
-document.querySelector('#copyUrlButton').addEventListener('click', async event => {
-  if (!selectedAsset) return;
-  try { await navigator.clipboard.writeText(secureUrl(selectedAsset)); event.currentTarget.textContent = 'Copied!'; setTimeout(() => { event.currentTarget.textContent = 'Copy secure URL'; }, 1500); }
-  catch { event.currentTarget.textContent = 'Copy unavailable'; }
+document.querySelector('#deletePreviewButton').addEventListener('click', event => {
+  if (selectedAsset) deleteAsset(selectedAsset, event.currentTarget);
 });
 document.querySelectorAll('.filter').forEach(button => button.addEventListener('click', () => {
   document.querySelectorAll('.filter').forEach(tab => { const selected = tab === button; tab.classList.toggle('active', selected); tab.setAttribute('aria-selected', String(selected)); });
