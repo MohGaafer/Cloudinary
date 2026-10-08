@@ -1,0 +1,11 @@
+{
+  "name": "TamaraVibes Cloudinary",
+  "short_name": "TamaraVibes Cloud",
+  "description": "Your private TamaraVibes photos and videos",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f6f2",
+  "theme_color": "#f7f6f2",
+  "icons": [{"src":"icons/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}

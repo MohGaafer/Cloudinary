@@ -1,0 +1,7 @@
+name = "tamaravibes-media-api"
+main = "src/index.js"
+compatibility_date = "2026-10-08"
+
+[vars]
+ALLOWED_ORIGIN = "https://YOUR_GITHUB_USERNAME.github.io"
+DEFAULT_FOLDER = "TamaraVibes"

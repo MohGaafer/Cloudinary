@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f7f6f2">
+  <meta name="description" content="A private TamaraVibes library for photos and videos.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <title>TamaraVibes Cloudinary</title>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="TamaraVibes Cloudinary home"><span class="brand-mark">T</span><span><strong>TamaraVibes Cloudinary</strong><small>PRIVATE MEDIA LIBRARY</small></span></a>
+      <button id="refreshButton" class="icon-button" aria-label="Refresh media" title="Refresh">↻</button>
+    </header>
+    <main id="top">
+      <section class="welcome">
+        <p class="eyebrow">YOUR CREATIVE SPACE</p>
+        <h1>Every moment,<br><em>in one place.</em></h1>
+        <p class="welcome-copy">Your photos and videos, ready whenever you need them.</p>
+        <button id="uploadButton" class="primary-button"><span class="upload-symbol">↑</span> Upload photos or videos</button>
+        <p class="upload-note">Opens Cloudinary's secure upload window</p>
+      </section>
+      <section class="library" aria-labelledby="libraryTitle">
+        <div class="section-heading"><div><p class="eyebrow">YOUR COLLECTION</p><h2 id="libraryTitle">My media</h2></div><span id="mediaCount" class="count">—</span></div>
+        <div class="filters" role="tablist" aria-label="Filter media">
+          <button class="filter active" data-filter="all" role="tab" aria-selected="true">All</button>
+          <button class="filter" data-filter="image" role="tab" aria-selected="false">Photos</button>
+          <button class="filter" data-filter="video" role="tab" aria-selected="false">Videos</button>
+        </div>
+        <div id="status" class="status" role="status">Set up the app to load your media.</div>
+        <div id="gallery" class="gallery"></div>
+      </section>
+    </main>
+    <footer><span>Made for your memories</span><span class="cloud-dot">●</span></footer>
+  </div>
+  <dialog id="previewDialog" class="preview-dialog"><button id="closePreview" class="close-button" aria-label="Close preview">×</button><div id="previewContent"></div><div class="preview-actions"><button id="copyUrlButton" class="secondary-button">Copy secure URL</button><a id="openUrl" class="secondary-button" target="_blank" rel="noopener">Open original</a></div></dialog>
+  <script src="https://upload-widget.cloudinary.com/global/all.js" defer></script>
+  <script src="app.js" defer></script>
+</body>
+</html>
