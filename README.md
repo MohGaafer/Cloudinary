@@ -21,14 +21,17 @@ GitHub Pages is static, so it cannot securely call Cloudinary's Admin API by its
    - `CLOUDINARY_CLOUD_NAME` — `rgtwnpin`.
    - `CLOUDINARY_API_KEY` — your Cloudinary API key (`443853227183795`); keep it in Worker settings, not in the site files.
    - `CLOUDINARY_API_SECRET` — your Cloudinary API Secret; store this as an encrypted Worker secret.
+   - `APP_DELETE_PASSWORD` — choose a separate password and store it as an encrypted Worker secret. The app asks for it each time you delete an asset; it is never saved in the site or browser storage.
    - `ALLOWED_ORIGIN` — exactly `https://YOUR_GITHUB_USERNAME.github.io` (origin only, with no repository path).
    - `DEFAULT_FOLDER` — `TamaraVibes`.
 3. Deploy the Worker. Copy its `workers.dev` URL into `CONFIG.mediaEndpoint` in `app.js`.
-4. Cloudinary Admin API credentials can read account assets. Keep Worker secrets private, and limit the endpoint to your Pages origin. The endpoint searches only under the requested folder (the app requests `TamaraVibes`).
+4. Cloudinary Admin API credentials can read and delete account assets. Keep Worker secrets private, and limit the endpoint to your Pages origin. The gallery lists all image and video assets in this Cloudinary environment.
 
 The endpoint returns up to 500 newest assets per request. Use the app's **Load more** button to fetch older assets in additional pages.
 
 The app also requests Cloudinary's Admin API usage report through the Worker and displays remaining credits. Cloudinary reports usage periodically, so the number may not change immediately after an upload or delivery.
+
+Each gallery item has a **Delete** button. The app asks for confirmation and the `APP_DELETE_PASSWORD`, then the Worker deletes that exact asset by its immutable asset ID and requests CDN invalidation. Without `APP_DELETE_PASSWORD` configured, deletion stays disabled by the Worker.
 
 ## 3. Publish on GitHub Pages
 
@@ -48,3 +51,7 @@ New uploads are directed to `TamaraVibes`. The gallery lists image and video ass
 ## PWA notes
 
 The app shell and static files are cached for launch reliability. Media requires an internet connection. Upload and secure gallery listing also require network access. The Upload Widget and Google Fonts load from their providers when online.
+
+## Applying this update to the existing app
+
+This update archive intentionally omits `icons/icon.svg` so it will not overwrite your custom logo. Upload the archive's files to the existing repository and keep its current `icons/icon.svg` in place. The header logo markup and CSS continue to use that same icon file.

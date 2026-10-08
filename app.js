@@ -53,10 +53,8 @@ function render() {
   statusBox.classList.add('hidden');
   visible.forEach(asset => {
     const isVideo = asset.resource_type === 'video';
-    const card = document.createElement('button');
-    card.type = 'button';
+    const card = document.createElement('article');
     card.className = 'media-card';
-    card.setAttribute('aria-label', `Preview ${asset.display_name || asset.public_id}`);
     const thumbUrl = isVideo ? secureUrl(asset).replace('/video/upload/', '/video/upload/so_0,f_jpg/') : secureUrl(asset).replace('/image/upload/', '/image/upload/c_fill,w_700,h_700,q_auto,f_auto/');
     const wrapper = document.createElement('div');
     if (isVideo) wrapper.className = 'video-thumb';
@@ -66,11 +64,48 @@ function render() {
     const meta = document.createElement('div'); meta.className = 'media-meta';
     const name = document.createElement('div'); name.className = 'media-name'; name.textContent = asset.display_name || asset.public_id.split('/').pop();
     const sub = document.createElement('div'); sub.className = 'media-sub'; sub.textContent = `${isVideo ? 'Video' : 'Photo'}${asset.created_at ? ` · ${new Date(asset.created_at).toLocaleDateString('en-US')}` : ''}`;
-    meta.append(name, sub); card.append(wrapper, meta);
-    card.addEventListener('click', () => openPreview(asset));
+    meta.append(name, sub);
+    const previewButton = document.createElement('button');
+    previewButton.type = 'button';
+    previewButton.className = 'media-preview-button';
+    previewButton.setAttribute('aria-label', `Preview ${asset.display_name || asset.public_id}`);
+    previewButton.append(wrapper, meta);
+    previewButton.addEventListener('click', () => openPreview(asset));
+    const actions = document.createElement('div'); actions.className = 'media-actions';
+    const deleteButton = document.createElement('button');
+    deleteButton.type = 'button'; deleteButton.className = 'delete-button'; deleteButton.textContent = 'Delete';
+    deleteButton.setAttribute('aria-label', `Delete ${asset.display_name || asset.public_id}`);
+    deleteButton.addEventListener('click', () => deleteAsset(asset, deleteButton));
+    actions.append(deleteButton);
+    card.append(previewButton, actions);
     gallery.append(card);
   });
   document.querySelector('#loadMoreButton').hidden = !hasMore;
+}
+
+async function deleteAsset(asset, button) {
+  const name = asset.display_name || asset.public_id;
+  if (!asset.asset_id) { setStatus('This item is missing its Cloudinary asset ID. Refresh the collection and try again.', true); return; }
+  if (!window.confirm(`Permanently delete “${name}” from Cloudinary? This cannot be undone.`)) return;
+  const password = window.prompt('Enter your delete password to continue:');
+  if (password === null || !password) return;
+  button.disabled = true;
+  button.textContent = 'Deleting…';
+  try {
+    const response = await fetch(`${CONFIG.mediaEndpoint.replace(/\/$/, '')}/delete`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Delete-Password': password },
+      body: JSON.stringify({ asset_id: asset.asset_id })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || `Delete failed (${response.status}).`);
+    assets = assets.filter(item => item.asset_id !== asset.asset_id);
+    render();
+    setStatus('Media deleted from Cloudinary.');
+  } catch (error) {
+    button.disabled = false; button.textContent = 'Delete';
+    setStatus(error.message || 'Could not delete this media. Please try again.', true);
+  }
 }
 
 async function loadMedia(append = false) {
