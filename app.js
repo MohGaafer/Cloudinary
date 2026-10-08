@@ -4,7 +4,7 @@ const CONFIG = {
   uploadPreset: 'tamaravibes_iphone',
   folder: 'TamaraVibes',
   // Optional Cloudflare Worker URL. Needed to securely list existing assets.
-  mediaEndpoint: 'YOUR_CLOUDFLARE_WORKER_URL'
+  mediaEndpoint: 'https://cloudinary.tamtam.workers.dev'
 };
 
 const gallery = document.querySelector('#gallery');

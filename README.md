@@ -8,7 +8,7 @@ Open `app.js` and replace only these placeholder values with values from your ex
 
 - `cloudName`: `rgtwnpin`.
 - `uploadPreset`: `tamaravibes_iphone` (it must be an **unsigned** upload preset). In Cloudinary settings, allow image and video uploads and set its folder to `TamaraVibes` if the account uses dynamic folders. The widget also requests the `TamaraVibes` folder.
-- `mediaEndpoint`: leave as the placeholder until the Worker is deployed, then paste its URL.
+- `mediaEndpoint`: `https://cloudinary.tamtam.workers.dev`.
 
 Never put the Cloudinary API Secret in `app.js`, HTML, GitHub, or any browser setting. If you need to create a fresh unsigned preset, restrict its allowed formats and size in Cloudinary settings. The sample app accepts common image and video formats, up to 100 MB.
 
