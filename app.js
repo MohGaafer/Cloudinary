@@ -79,7 +79,7 @@ async function loadMedia(append = false) {
   loadMoreButton.disabled = true;
   if (!append) document.querySelector('#refreshButton').disabled = true;
   try {
-    const params = new URLSearchParams({ folder: CONFIG.galleryFolder, max_results: '100' });
+    const params = new URLSearchParams({ folder: CONFIG.galleryFolder, max_results: '500' });
     if (append && nextCursor) params.set('next_cursor', nextCursor);
     const response = await fetch(`${CONFIG.mediaEndpoint.replace(/\/$/, '')}?${params}`, { headers: { Accept: 'application/json' } });
     if (!response.ok) throw new Error(`The media service returned ${response.status}.`);
