@@ -11,6 +11,11 @@ const CONFIG = {
 const gallery = document.querySelector('#gallery');
 const statusBox = document.querySelector('#status');
 const mediaCount = document.querySelector('#mediaCount');
+const creditsRemaining = document.querySelector('#creditsRemaining');
+const creditsDetail = document.querySelector('#creditsDetail');
+const usageBar = document.querySelector('#usageBar');
+const usageTrack = document.querySelector('.usage-track');
+const usageUpdated = document.querySelector('#usageUpdated');
 const previewDialog = document.querySelector('#previewDialog');
 const previewContent = document.querySelector('#previewContent');
 let assets = [];
@@ -97,6 +102,34 @@ async function loadMedia(append = false) {
   } finally { document.querySelector('#refreshButton').disabled = false; loadMoreButton.disabled = false; }
 }
 
+async function loadUsage() {
+  creditsRemaining.textContent = 'Loading…';
+  creditsDetail.textContent = 'Checking current usage';
+  usageUpdated.textContent = '';
+  try {
+    const response = await fetch(`${CONFIG.mediaEndpoint.replace(/\/$/, '')}/usage`, { headers: { Accept: 'application/json' } });
+    if (!response.ok) throw new Error(`Usage service returned ${response.status}.`);
+    const data = await response.json();
+    const limit = Number(data.credits?.limit);
+    const used = Number(data.credits?.used);
+    if (!Number.isFinite(limit) || !Number.isFinite(used) || limit <= 0) throw new Error('Credit usage data is unavailable.');
+    const remaining = Math.max(0, limit - used);
+    const percentageUsed = Math.min(100, Math.max(0, used / limit * 100));
+    creditsRemaining.textContent = `${remaining.toFixed(1)} / ${limit.toFixed(limit % 1 ? 1 : 0)}`;
+    creditsDetail.textContent = `${used.toFixed(1)} credits used`;
+    usageBar.style.width = `${percentageUsed}%`;
+    usageBar.classList.toggle('warning', percentageUsed >= 70 && percentageUsed < 90);
+    usageBar.classList.toggle('critical', percentageUsed >= 90);
+    usageTrack.setAttribute('aria-valuemax', String(limit));
+    usageTrack.setAttribute('aria-valuenow', String(used));
+    if (data.last_updated) usageUpdated.textContent = `Updated ${new Date(data.last_updated).toLocaleDateString('en-US')}`;
+  } catch (error) {
+    creditsRemaining.textContent = 'Unavailable';
+    creditsDetail.textContent = error.message;
+    usageBar.style.width = '0';
+  }
+}
+
 function openUpload() {
   if (!readyForUpload()) { setStatus('Add your Cloudinary cloud name and unsigned upload preset in app.js before uploading.', true); document.querySelector('#uploadButton').focus(); return; }
   if (!window.cloudinary?.createUploadWidget) { setStatus('The Cloudinary upload window is still loading. Check your connection and try again.', true); return; }
@@ -132,7 +165,7 @@ function openPreview(asset) {
 }
 
 document.querySelector('#uploadButton').addEventListener('click', openUpload);
-document.querySelector('#refreshButton').addEventListener('click', loadMedia);
+document.querySelector('#refreshButton').addEventListener('click', () => { loadMedia(); loadUsage(); });
 document.querySelector('#loadMoreButton').addEventListener('click', () => loadMedia(true));
 document.querySelector('#closePreview').addEventListener('click', () => previewDialog.close());
 previewDialog.addEventListener('click', event => { if (event.target === previewDialog) previewDialog.close(); });
@@ -148,3 +181,4 @@ document.querySelectorAll('.filter').forEach(button => button.addEventListener('
 
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register(new URL('sw.js', document.baseURI)).catch(() => {});
 loadMedia();
+loadUsage();

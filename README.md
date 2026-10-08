@@ -28,6 +28,8 @@ GitHub Pages is static, so it cannot securely call Cloudinary's Admin API by its
 
 The endpoint returns up to 500 newest assets per request. Use the app's **Load more** button to fetch older assets in additional pages.
 
+The app also requests Cloudinary's Admin API usage report through the Worker and displays remaining credits. Cloudinary reports usage periodically, so the number may not change immediately after an upload or delivery.
+
 ## 3. Publish on GitHub Pages
 
 1. Create/open your GitHub repository named `Cloudinary`.

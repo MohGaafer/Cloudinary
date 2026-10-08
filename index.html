@@ -24,6 +24,11 @@
         <button id="uploadButton" class="primary-button"><span class="upload-symbol">↑</span> Upload photos or videos</button>
         <p class="upload-note">Opens Cloudinary's secure upload window</p>
       </section>
+      <section id="usageCard" class="usage-card" aria-label="Cloudinary credit usage">
+        <div class="usage-top"><div><p class="eyebrow">CLOUDINARY CREDITS</p><h2>Credits remaining</h2></div><div id="creditsRemaining" class="credits-remaining">Loading…</div></div>
+        <div class="usage-track" role="progressbar" aria-label="Credits used" aria-valuemin="0" aria-valuemax="25" aria-valuenow="0"><div id="usageBar" class="usage-bar"></div></div>
+        <div class="usage-footer"><span id="creditsDetail">Checking current usage</span><span id="usageUpdated"></span></div>
+      </section>
       <section class="library" aria-labelledby="libraryTitle">
         <div class="section-heading"><div><p class="eyebrow">YOUR COLLECTION</p><h2 id="libraryTitle">My media</h2></div><span id="mediaCount" class="count">—</span></div>
         <div class="filters" role="tablist" aria-label="Filter media">

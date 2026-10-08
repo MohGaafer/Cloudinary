@@ -21,6 +21,19 @@ export default {
     if (!env.CLOUDINARY_CLOUD_NAME || !env.CLOUDINARY_API_KEY || !env.CLOUDINARY_API_SECRET) return json({ error: 'Cloudinary Worker secrets are not configured.' }, 503, corsOrigin);
 
     const requestUrl = new URL(request.url);
+    if (requestUrl.pathname.replace(/\/$/, '') === '/usage') {
+      const usageUrl = `https://api.cloudinary.com/v1_1/${encodeURIComponent(env.CLOUDINARY_CLOUD_NAME)}/usage`;
+      try {
+        const response = await fetch(usageUrl, { headers: { authorization: `Basic ${btoa(`${env.CLOUDINARY_API_KEY}:${env.CLOUDINARY_API_SECRET}`)}` } });
+        const data = await response.json();
+        if (!response.ok) return json({ error: data.error?.message || 'Cloudinary usage lookup failed.' }, response.status, corsOrigin);
+        const limit = Number(data.credits?.limit);
+        const used = Number(data.credits?.usage);
+        if (!Number.isFinite(limit) || !Number.isFinite(used)) return json({ error: 'Cloudinary did not return credit usage data.' }, 502, corsOrigin);
+        return json({ credits: { used, limit }, last_updated: data.last_updated || data.date_requested || null }, 200, corsOrigin);
+      } catch { return json({ error: 'Could not retrieve Cloudinary usage.' }, 502, corsOrigin); }
+    }
+
     const folder = requestUrl.searchParams.get('folder') || env.DEFAULT_FOLDER || 'TamaraVibes';
     const maxResults = Math.min(Math.max(Number(requestUrl.searchParams.get('max_results')) || 500, 1), 500);
     const nextCursor = requestUrl.searchParams.get('next_cursor');
