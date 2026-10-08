@@ -23,7 +23,7 @@ export default {
     const requestUrl = new URL(request.url);
     const folder = requestUrl.searchParams.get('folder') || env.DEFAULT_FOLDER || 'TamaraVibes';
     const maxResults = Math.min(Math.max(Number(requestUrl.searchParams.get('max_results')) || 100, 1), 100);
-    const expression = `folder:${folder}/*`;
+    const expression = folder === 'all' ? 'resource_type:image OR resource_type:video' : `folder:${folder}/*`;
     const endpoint = `https://api.cloudinary.com/v1_1/${encodeURIComponent(env.CLOUDINARY_CLOUD_NAME)}/resources/search`;
     const auth = btoa(`${env.CLOUDINARY_API_KEY}:${env.CLOUDINARY_API_SECRET}`);
     try {

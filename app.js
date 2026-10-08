@@ -2,7 +2,8 @@
 const CONFIG = {
   cloudName: 'rgtwnpin',
   uploadPreset: 'tamaravibes_iphone',
-  folder: 'TamaraVibes',
+  uploadFolder: 'TamaraVibes',
+  galleryFolder: 'all',
   // Optional Cloudflare Worker URL. Needed to securely list existing assets.
   mediaEndpoint: 'https://cloudinary.tamtam.workers.dev'
 };
@@ -73,14 +74,14 @@ async function loadMedia() {
   setStatus('Loading your TamaraVibes collection…');
   document.querySelector('#refreshButton').disabled = true;
   try {
-    const response = await fetch(`${CONFIG.mediaEndpoint.replace(/\/$/, '')}?folder=${encodeURIComponent(CONFIG.folder)}&max_results=100`, { headers: { Accept: 'application/json' } });
+    const response = await fetch(`${CONFIG.mediaEndpoint.replace(/\/$/, '')}?folder=${encodeURIComponent(CONFIG.galleryFolder)}&max_results=100`, { headers: { Accept: 'application/json' } });
     if (!response.ok) throw new Error(`The media service returned ${response.status}.`);
     const data = await response.json();
     if (!Array.isArray(data.resources)) throw new Error(data.error || 'The media service response is missing its resources list.');
     assets = data.resources;
     statusBox.classList.add('hidden');
     render();
-    if (!assets.length) setStatus(`No media found in “${CONFIG.folder}” yet. Upload a photo or video to get started.`);
+    if (!assets.length) setStatus('No photos or videos found yet. Upload a photo or video to get started.');
   } catch (error) {
     assets = []; render(); setStatus(`${error.message} Check the Worker setup and try again.`, true);
   } finally { document.querySelector('#refreshButton').disabled = false; }
@@ -95,7 +96,7 @@ function openUpload() {
     multiple: true,
     resourceType: 'auto',
     sources: ['local', 'camera'],
-    folder: CONFIG.folder,
+    folder: CONFIG.uploadFolder,
     clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp', 'gif', 'mp4', 'mov', 'webm'],
     maxFileSize: 100000000,
     showAdvancedOptions: false,

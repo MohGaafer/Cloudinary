@@ -41,7 +41,7 @@ If Pages is not ready yet, replace `ALLOWED_ORIGIN` in the Worker with the exact
 
 ## Folder behavior
 
-Uploads are directed to `TamaraVibes`; the gallery queries that folder and does not enumerate other folders. Assets that were uploaded elsewhere will not appear until moved into `TamaraVibes` in Cloudinary Media Library or the app/Worker folder setting is changed.
+New uploads are directed to `TamaraVibes`. The gallery lists image and video assets across the Cloudinary account, including existing assets in the Media Library's Assets view, so you do not need to create a folder for the gallery to work. The `TamaraVibes` folder is used only to keep future uploads organized.
 
 ## PWA notes
 
