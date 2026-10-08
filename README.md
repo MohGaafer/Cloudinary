@@ -26,7 +26,7 @@ GitHub Pages is static, so it cannot securely call Cloudinary's Admin API by its
 3. Deploy the Worker. Copy its `workers.dev` URL into `CONFIG.mediaEndpoint` in `app.js`.
 4. Cloudinary Admin API credentials can read account assets. Keep Worker secrets private, and limit the endpoint to your Pages origin. The endpoint searches only under the requested folder (the app requests `TamaraVibes`).
 
-The endpoint returns up to 100 newest assets per request. If the folder has more than 100 assets, pagination can be added using Cloudinary's `next_cursor`.
+The endpoint returns up to 100 newest assets per request. Use the app's **Load more** button to fetch older assets in additional pages.
 
 ## 3. Publish on GitHub Pages
 

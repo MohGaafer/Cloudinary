@@ -16,6 +16,8 @@ const previewContent = document.querySelector('#previewContent');
 let assets = [];
 let activeFilter = 'all';
 let selectedAsset = null;
+let nextCursor = null;
+let hasMore = false;
 
 const configured = value => value && !value.startsWith('YOUR_');
 const readyForUpload = () => configured(CONFIG.cloudName) && configured(CONFIG.uploadPreset);
@@ -63,28 +65,36 @@ function render() {
     card.addEventListener('click', () => openPreview(asset));
     gallery.append(card);
   });
+  document.querySelector('#loadMoreButton').hidden = !hasMore;
 }
 
-async function loadMedia() {
+async function loadMedia(append = false) {
   if (!readyForGallery()) {
-    assets = []; mediaCount.textContent = '—'; gallery.replaceChildren();
+    assets = []; nextCursor = null; hasMore = false; mediaCount.textContent = '—'; gallery.replaceChildren();
     setStatus('To load your existing media, add the Cloudflare Worker URL in app.js. Your API Secret stays in the Worker and is never sent to this page.');
     return;
   }
-  setStatus('Loading your TamaraVibes collection…');
-  document.querySelector('#refreshButton').disabled = true;
+  if (!append) { nextCursor = null; hasMore = false; setStatus('Loading your TamaraVibes collection…'); }
+  const loadMoreButton = document.querySelector('#loadMoreButton');
+  loadMoreButton.disabled = true;
+  if (!append) document.querySelector('#refreshButton').disabled = true;
   try {
-    const response = await fetch(`${CONFIG.mediaEndpoint.replace(/\/$/, '')}?folder=${encodeURIComponent(CONFIG.galleryFolder)}&max_results=100`, { headers: { Accept: 'application/json' } });
+    const params = new URLSearchParams({ folder: CONFIG.galleryFolder, max_results: '100' });
+    if (append && nextCursor) params.set('next_cursor', nextCursor);
+    const response = await fetch(`${CONFIG.mediaEndpoint.replace(/\/$/, '')}?${params}`, { headers: { Accept: 'application/json' } });
     if (!response.ok) throw new Error(`The media service returned ${response.status}.`);
     const data = await response.json();
     if (!Array.isArray(data.resources)) throw new Error(data.error || 'The media service response is missing its resources list.');
-    assets = data.resources;
+    assets = append ? assets.concat(data.resources) : data.resources;
+    nextCursor = data.next_cursor || null;
+    hasMore = Boolean(nextCursor);
     statusBox.classList.add('hidden');
     render();
     if (!assets.length) setStatus('No photos or videos found yet. Upload a photo or video to get started.');
   } catch (error) {
-    assets = []; render(); setStatus(`${error.message} Check the Worker setup and try again.`, true);
-  } finally { document.querySelector('#refreshButton').disabled = false; }
+    if (!append) { assets = []; nextCursor = null; hasMore = false; }
+    render(); setStatus(`${error.message} Check the Worker setup and try again.`, true);
+  } finally { document.querySelector('#refreshButton').disabled = false; loadMoreButton.disabled = false; }
 }
 
 function openUpload() {
@@ -123,6 +133,7 @@ function openPreview(asset) {
 
 document.querySelector('#uploadButton').addEventListener('click', openUpload);
 document.querySelector('#refreshButton').addEventListener('click', loadMedia);
+document.querySelector('#loadMoreButton').addEventListener('click', () => loadMedia(true));
 document.querySelector('#closePreview').addEventListener('click', () => previewDialog.close());
 previewDialog.addEventListener('click', event => { if (event.target === previewDialog) previewDialog.close(); });
 document.querySelector('#copyUrlButton').addEventListener('click', async event => {

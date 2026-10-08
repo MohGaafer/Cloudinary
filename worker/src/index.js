@@ -23,6 +23,7 @@ export default {
     const requestUrl = new URL(request.url);
     const folder = requestUrl.searchParams.get('folder') || env.DEFAULT_FOLDER || 'TamaraVibes';
     const maxResults = Math.min(Math.max(Number(requestUrl.searchParams.get('max_results')) || 100, 1), 100);
+    const nextCursor = requestUrl.searchParams.get('next_cursor');
     const expression = folder === 'all' ? 'resource_type:image OR resource_type:video' : `folder:${folder}/*`;
     const endpoint = `https://api.cloudinary.com/v1_1/${encodeURIComponent(env.CLOUDINARY_CLOUD_NAME)}/resources/search`;
     const auth = btoa(`${env.CLOUDINARY_API_KEY}:${env.CLOUDINARY_API_SECRET}`);
@@ -30,7 +31,7 @@ export default {
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { authorization: `Basic ${auth}`, 'content-type': 'application/json' },
-        body: JSON.stringify({ expression, sort_by: [{ created_at: 'desc' }], max_results: maxResults, fields: ['public_id', 'resource_type', 'type', 'format', 'version', 'created_at', 'bytes', 'width', 'height', 'secure_url', 'display_name', 'folder'] })
+        body: JSON.stringify({ expression, sort_by: [{ created_at: 'desc' }], max_results: maxResults, ...(nextCursor ? { next_cursor: nextCursor } : {}), fields: ['public_id', 'resource_type', 'type', 'format', 'version', 'created_at', 'bytes', 'width', 'height', 'secure_url', 'display_name', 'folder'] })
       });
       const data = await response.json();
       if (!response.ok) return json({ error: data.error?.message || 'Cloudinary search failed.' }, response.status, corsOrigin);
